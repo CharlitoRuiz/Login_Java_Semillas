@@ -5,6 +5,8 @@ import org.testng.Assert;
 import org.testng.annotations.*;
 import pages.LoginPage;
 import java.time.Duration;
+import utils.ScreenshotHelper;
+import org.testng.ITestResult;
 
 public class LoginTest {
     WebDriver driver;
@@ -21,7 +23,7 @@ public class LoginTest {
     @DataProvider(name = "datosLogin")
     public Object[][] obtenerDatosLogin() {
         return new Object[][]{
-                {"tomsmith", "SuperSecretPassword!", "You logged into a secure area!", true},
+                {"tomsmith", "SuperSecretPassword!2", "You logged into a secure area!", true},
                 {"usuarioInvalido", "SuperSecretPassword!", "Your username is invalid!", false},
                 {"tomsmith", "claveIncorrecta", "Your password is invalid!", false},
                 {"", "", "Your username is invalid!", false}
@@ -40,7 +42,10 @@ public class LoginTest {
     }
 
     @AfterMethod
-    public void tearDown() {
+    public void tearDown(ITestResult result) {
+        if (ITestResult.FAILURE == result.getStatus()) {
+            ScreenshotHelper.capturarPantalla(driver, result.getName());
+        }
         driver.quit();
     }
 }
