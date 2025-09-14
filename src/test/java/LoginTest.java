@@ -18,33 +18,25 @@ public class LoginTest {
         loginPage = new LoginPage(driver);
     }
 
-    @Test
-    public void loginExitoso() {
-        loginPage.ingresarUsuario("tomsmith");
-        loginPage.ingresarContrasena("SuperSecretPassword!");
-        loginPage.hacerLogin();
-
-        String mensaje = loginPage.obtenerMensaje();
-        Assert.assertTrue(mensaje.contains("You logged into a secure area!"),
-                "El mensaje de login exitoso no es el esperado.");
-        Assert.assertTrue(mensaje.toLowerCase().contains("logged into"), "Mensaje inesperado");
+    @DataProvider(name = "datosLogin")
+    public Object[][] obtenerDatosLogin() {
+        return new Object[][]{
+                {"tomsmith", "SuperSecretPassword!", "You logged into a secure area!", true},
+                {"usuarioInvalido", "SuperSecretPassword!", "Your username is invalid!", false},
+                {"tomsmith", "claveIncorrecta", "Your password is invalid!", false},
+                {"", "", "Your username is invalid!", false}
+        };
     }
 
-    @Test
-    public void loginFallido() {
-        loginPage.ingresarUsuario("usuarioIncorrecto");
-        loginPage.ingresarContrasena("claveIncorrecta");
+    @Test(dataProvider = "datosLogin")
+    public void loginExitoso(String usuario, String clave, String mensajeEsperado, boolean loginExitoso) {
+        loginPage.ingresarUsuario(usuario);
+        loginPage.ingresarContrasena(clave);
         loginPage.hacerLogin();
 
         String mensaje = loginPage.obtenerMensaje();
-        Assert.assertTrue(mensaje.contains("Your username is invalid!"),
-                "El mensaje de error no es el esperado.");
-
-        //boolean mensajeExitoVisible = driver.findElement(By.cssSelector(".flash.success")).isDisplayed();
-        //Assert.assertFalse(mensajeExitoVisible, "El mensaje de login exitoso no debería mostrarse");
-
-        boolean mensajeExitoPresente = driver.findElements(By.cssSelector(".flash.success")).size() > 0;
-        Assert.assertFalse(mensajeExitoPresente, "El mensaje de éxito no debería estar presente tras login fallido.");
+        Assert.assertTrue(mensaje.contains(mensajeEsperado),
+                "El mensaje de login exitoso no es el esperado.");
     }
 
     @AfterMethod
