@@ -58,9 +58,13 @@ public class LoginTest {
 
     @AfterMethod
     public void tearDown(ITestResult result) {
-        if (ITestResult.FAILURE == result.getStatus()) {
-            ScreenshotHelper.capturarPantalla(driver, result.getName());
-            test.fail("Captura generada por fallo");
+        if (result.getStatus() == ITestResult.FAILURE) {
+            String ruta = ScreenshotHelper.capturarYDevolverRuta(driver, result.getName());
+
+            if (ruta != null) {
+                test.fail("❌ Falló el test con excepción: " + result.getThrowable());
+                test.addScreenCaptureFromPath(ruta);  // ✅ ADJUNTAR EN REPORTE
+            }
         }
         driver.quit();
     }
