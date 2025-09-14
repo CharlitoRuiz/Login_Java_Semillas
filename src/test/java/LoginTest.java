@@ -2,31 +2,33 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.testng.annotations.*;
 
 public class LoginTest {
-    public static void main(String[] args){
-        WebDriver driver = new ChromeDriver();
+    WebDriver driver = new ChromeDriver();
+
+    @BeforeMethod
+    public void setUp() {
+        driver = new ChromeDriver();
         driver.get("https://the-internet.herokuapp.com/login");
+    }
 
-        WebElement usernameField = driver.findElement(By.id("username"));
-        usernameField.sendKeys("tomsmith");
+    @Test
+    public void loginExitoso() {
+        driver.findElement(By.id("username")).sendKeys("tomsmith");
+        driver.findElement(By.id("password")).sendKeys("SuperSecretPassword!");
+        driver.findElement(By.cssSelector("button[type='submit']")).click();
+    }
 
-        WebElement passwordField = driver.findElement(By.id("password"));
-        passwordField.sendKeys("SuperSecretPassword!");
+    @Test
+    public void loginFallido() {
+        driver.findElement(By.id("username")).sendKeys("usuarioIncorrecto");
+        driver.findElement(By.id("password")).sendKeys("claveIncorrecta");
+        driver.findElement(By.cssSelector("button[type='submit']")).click();
+    }
 
-        WebElement loginButton = driver.findElement(By.cssSelector("button[type='submit']"));
-        loginButton.click();
-
+    @AfterMethod
+    public void tearDown() {
         driver.quit();
-
-        // Segundo intento - login fallido
-        WebDriver driver2 = new ChromeDriver();
-        driver2.get("https://the-internet.herokuapp.com/login");
-
-        driver2.findElement(By.id("username")).sendKeys("usuarioIncorrecto");
-        driver2.findElement(By.id("password")).sendKeys("claveIncorrecta");
-        driver2.findElement(By.cssSelector("button[type='submit']")).click();
-
-        driver2.quit();
     }
 }
