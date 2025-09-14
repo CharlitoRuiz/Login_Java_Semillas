@@ -4,6 +4,7 @@ import org.openqa.selenium.edge.EdgeDriver;
 import org.testng.Assert;
 import org.testng.annotations.*;
 import pages.LoginPage;
+import java.time.Duration;
 
 public class LoginTest {
     WebDriver driver;
@@ -12,6 +13,7 @@ public class LoginTest {
     @BeforeMethod
     public void setUp() {
         driver = new EdgeDriver();
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5)); // ⏳ Espera implícita
         driver.get("https://the-internet.herokuapp.com/login");
         loginPage = new LoginPage(driver);
     }

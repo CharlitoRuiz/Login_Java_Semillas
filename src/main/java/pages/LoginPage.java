@@ -1,10 +1,12 @@
 package pages;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import utils.WaitHelper;
 
 
 public class LoginPage {
     WebDriver driver;
+    WaitHelper wait;
 
     // Selectores
     private By usernameField = By.id("username");
@@ -15,7 +17,9 @@ public class LoginPage {
     // Constructor
     public LoginPage(WebDriver driver) {
         this.driver = driver;
+        this.wait = new WaitHelper(driver);
     }
+
 
     // Acciones
     public void ingresarUsuario(String usuario) {
@@ -30,7 +34,8 @@ public class LoginPage {
         driver.findElement(loginButton).click();
     }
 
+    // Metodo nuevo con espera explicita
     public String obtenerMensaje() {
-        return driver.findElement(flashMessage).getText();
+        return wait.esperarElementoVisible(flashMessage).getText();
     }
 }
