@@ -29,4 +29,24 @@ public class ScreenshotHelper {
             System.err.println("❌ No se pudo guardar la captura: " + e.getMessage());
         }
     }
+
+    public static String capturarYDevolverRuta(WebDriver driver, String nombreBase) {
+        TakesScreenshot ts = (TakesScreenshot) driver;
+        File origen = ts.getScreenshotAs(OutputType.FILE);
+
+        String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String nombreArchivo = "screenshot_" + nombreBase + "_" + timestamp + ".png";
+
+        File destino = new File("screenshots/" + nombreArchivo);
+        destino.getParentFile().mkdirs();
+
+        try {
+            Files.copy(origen.toPath(), destino.toPath());
+            System.out.println("📸 Captura de pantalla guardada: " + destino.getAbsolutePath());
+            return destino.getAbsolutePath(); // ✅ retorna ruta
+        } catch (IOException e) {
+            System.err.println("❌ No se pudo guardar la captura: " + e.getMessage());
+            return null;
+        }
+    }
 }
