@@ -7,6 +7,8 @@ import pages.LoginPage;
 import java.time.Duration;
 import utils.ScreenshotHelper;
 import org.testng.ITestResult;
+import utils.ConfigReader;
+
 
 public class LoginTest {
     WebDriver driver;
@@ -15,17 +17,17 @@ public class LoginTest {
     @BeforeMethod
     public void setUp() {
         driver = new EdgeDriver();
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5)); // ⏳ Espera implícita
-        driver.get("https://the-internet.herokuapp.com/login");
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(Integer.parseInt(ConfigReader.get("timeout")))); // ⏳ Espera implícita
+        driver.get(ConfigReader.get("url"));
         loginPage = new LoginPage(driver);
     }
 
     @DataProvider(name = "datosLogin")
     public Object[][] obtenerDatosLogin() {
         return new Object[][]{
-                {"tomsmith", "SuperSecretPassword!2", "You logged into a secure area!", true},
-                {"usuarioInvalido", "SuperSecretPassword!", "Your username is invalid!", false},
-                {"tomsmith", "claveIncorrecta", "Your password is invalid!", false},
+                {ConfigReader.get("usuarioValido"), ConfigReader.get("claveValida"), "You logged into a secure area!", true},
+                {ConfigReader.get("usuarioInvalido"), ConfigReader.get("claveValida"), "Your username is invalid!", false},
+                {ConfigReader.get("usuarioValido"), ConfigReader.get("claveInvalida"), "Your password is invalid!", false},
                 {"", "", "Your username is invalid!", false}
         };
     }
