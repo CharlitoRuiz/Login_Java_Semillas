@@ -8,18 +8,24 @@ import java.time.Duration;
 import utils.ScreenshotHelper;
 import org.testng.ITestResult;
 import utils.ConfigReader;
-
+import com.aventstack.extentreports.*;
+import utils.ExtentManager;
+import java.lang.reflect.Method;
 
 public class LoginTest {
     WebDriver driver;
     LoginPage loginPage;
+    ExtentTest test;
 
     @BeforeMethod
-    public void setUp() {
+    public void setUp(Method method) {
         driver = new EdgeDriver();
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(Integer.parseInt(ConfigReader.get("timeout")))); // ⏳ Espera implícita
         driver.get(ConfigReader.get("url"));
         loginPage = new LoginPage(driver);
+
+        // Iniciar reporte por método
+        test = ExtentManager.createTest(method.getName());
     }
 
     @DataProvider(name = "datosLogin")
@@ -34,20 +40,33 @@ public class LoginTest {
 
     @Test(dataProvider = "datosLogin")
     public void loginExitoso(String usuario, String clave, String mensajeEsperado, boolean loginExitoso) {
-        loginPage.ingresarUsuario(usuario);
-        loginPage.ingresarContrasena(clave);
-        loginPage.hacerLogin();
+        try {
+            loginPage.ingresarUsuario(usuario);
+            loginPage.ingresarContrasena(clave);
+            loginPage.hacerLogin();
 
-        String mensaje = loginPage.obtenerMensaje();
-        Assert.assertTrue(mensaje.contains(mensajeEsperado),
-                "El mensaje de login exitoso no es el esperado.");
+            String mensaje = loginPage.obtenerMensaje();
+            test.info("Mensaje recibido: " + mensaje);
+            Assert.assertTrue(mensaje.contains(mensajeEsperado),
+                    "El mensaje de login exitoso no es el esperado.");
+            test.pass("Validación exitosa");
+        } catch (Exception e) {
+            test.fail("Test fallido con excepción: " + e.getMessage());
+            throw e;
+        }
     }
 
     @AfterMethod
     public void tearDown(ITestResult result) {
         if (ITestResult.FAILURE == result.getStatus()) {
             ScreenshotHelper.capturarPantalla(driver, result.getName());
+            test.fail("Captura generada por fallo");
         }
         driver.quit();
+    }
+
+    @AfterSuite
+    public void cerrarReporte() {
+        ExtentManager.flush();
     }
 }
